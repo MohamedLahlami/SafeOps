@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # MongoDB - Primary database for raw logs and parsed templates
+  mongodb:
+    image: mongo:6.0
+    container_name: safeops-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-safeops123}
+      MONGO_INITDB_DATABASE: safeops
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-scripts/mongo:/docker-entrypoint-initdb.d:ro
+    networks:
+      - safeops-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL with TimescaleDB - Time-series metrics storage
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: safeops-timescaledb
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-safeops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-safeops123}
+      POSTGRES_DB: ${POSTGRES_DB:-safeops_metrics}
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./init-scripts/postgres:/docker-entrypoint-initdb.d:ro
+    networks:
+      - safeops-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-safeops} -d ${POSTGRES_DB:-safeops_metrics}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ - Message broker for async communication
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: safeops-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"   # AMQP protocol
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-safeops}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-safeops123}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - safeops-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongodb_data:
+    driver: local
+  timescale_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  safeops-network:
+    driver: bridge

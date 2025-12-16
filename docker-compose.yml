@@ -1,6 +1,10 @@
 version: "3.8"
 
 services:
+  # =============================================================================
+  # INFRASTRUCTURE SERVICES
+  # =============================================================================
+
   # MongoDB - Primary database for raw logs and parsed templates
   mongodb:
     image: mongo:6.0
@@ -70,12 +74,145 @@ services:
       timeout: 5s
       retries: 5
 
+  # =============================================================================
+  # APPLICATION SERVICES
+  # =============================================================================
+
+  # LogCollector - Webhook ingestion service
+  log-collector:
+    build:
+      context: ./services/log-collector
+      dockerfile: Dockerfile
+    container_name: safeops-log-collector
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      # MongoDB
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-safeops123}@mongodb:27017/safeops?authSource=admin
+      # RabbitMQ
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-safeops}:${RABBITMQ_PASSWORD:-safeops123}@rabbitmq:5672
+      RABBITMQ_QUEUE: raw_logs
+      # Webhook security
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-your-webhook-secret}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - safeops-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+
+  # LogParser - Log parsing and feature extraction service
+  log-parser:
+    build:
+      context: ./services/log-parser
+      dockerfile: Dockerfile
+    container_name: safeops-log-parser
+    restart: unless-stopped
+    environment:
+      PYTHONUNBUFFERED: 1
+      # MongoDB
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-safeops123}@mongodb:27017/safeops?authSource=admin
+      # PostgreSQL
+      POSTGRES_HOST: timescaledb
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-safeops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-safeops123}
+      POSTGRES_DB: ${POSTGRES_DB:-safeops_metrics}
+      # RabbitMQ
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-safeops}:${RABBITMQ_PASSWORD:-safeops123}@rabbitmq:5672
+      INPUT_QUEUE: raw_logs
+      OUTPUT_QUEUE: build_features
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      timescaledb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - safeops-network
+
+  # AnomalyDetector - ML-based anomaly detection service
+  anomaly-detector:
+    build:
+      context: ./services/anomaly-detector
+      dockerfile: Dockerfile
+    container_name: safeops-anomaly-detector
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      PYTHONUNBUFFERED: 1
+      API_PORT: 3002
+      # PostgreSQL
+      POSTGRES_HOST: timescaledb
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-safeops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-safeops123}
+      POSTGRES_DB: ${POSTGRES_DB:-safeops_metrics}
+      # RabbitMQ
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-safeops}:${RABBITMQ_PASSWORD:-safeops123}@rabbitmq:5672
+      INPUT_QUEUE: build_features
+      # Model settings
+      MODEL_PATH: /app/models/isolation_forest.joblib
+      TRAINING_DATA_PATH: /app/data/training_data.csv
+      CONTAMINATION: 0.1
+    volumes:
+      - anomaly_models:/app/models
+      - ./data-factory:/app/data:ro
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - safeops-network
+    healthcheck:
+      test: curl -f http://localhost:3002/health || exit 1
+      interval: 30s
+      timeout: 10s
+      start_period: 20s
+      retries: 3
+
+  # Dashboard - React frontend
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: safeops-dashboard
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      anomaly-detector:
+        condition: service_healthy
+    networks:
+      - safeops-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
+
 volumes:
   mongodb_data:
     driver: local
   timescale_data:
     driver: local
   rabbitmq_data:
+    driver: local
+  anomaly_models:
     driver: local
 
 networks:

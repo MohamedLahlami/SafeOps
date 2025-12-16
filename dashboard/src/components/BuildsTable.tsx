@@ -87,7 +87,10 @@ export function BuildsTable({
                   <code>{build.build_id}</code>
                 </td>
                 <td className="timestamp">
-                  {format(parseTimestamp(build.timestamp), "MMM d, yyyy HH:mm:ss")}
+                  {format(
+                    parseTimestamp(build.timestamp),
+                    "MMM d, yyyy HH:mm:ss"
+                  )}
                 </td>
                 <td className="status">
                   {build.is_anomaly ? (

@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "trained_at": "2025-12-15T23:15:39.159211",
+  "feature_names": [
+    "duration_seconds",
+    "log_line_count",
+    "char_density",
+    "error_count",
+    "warning_count",
+    "step_count"
+  ],
+  "training_stats": {
+    "n_samples": 723,
+    "n_features": 6,
+    "n_anomalies_detected": 73,
+    "anomaly_ratio": 0.10096818810511757,
+    "score_mean": 0.07317477571432318,
+    "score_std": 0.04961557498722276,
+    "feature_means": {
+      "duration_seconds": 120.37064381742739,
+      "log_line_count": 484.3817427385892,
+      "char_density": 28.468547717842327,
+      "error_count": 14.293222683264178,
+      "warning_count": 22.081604426002766,
+      "step_count": 6.0
+    },
+    "feature_stds": {
+      "duration_seconds": 14.272650839253973,
+      "log_line_count": 102.51160760573197,
+      "char_density": 0.3669877667161397,
+      "error_count": 4.720708898938297,
+      "warning_count": 6.74959579572224,
+      "step_count": 0.0
+    }
+  },
+  "config": {
+    "n_estimators": 100,
+    "contamination": 0.1
+  }
+}

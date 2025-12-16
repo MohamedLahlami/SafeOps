@@ -1,0 +1,8 @@
+# LogParser Service Dependencies
+pika>=1.3.2              # RabbitMQ client
+pymongo>=4.6.1           # MongoDB client
+psycopg2-binary>=2.9.9   # PostgreSQL client
+python-dotenv>=1.0.0     # Environment variables
+numpy>=1.24.0            # Numerical operations
+pandas>=2.0.0            # Data manipulation
+regex>=2023.12.25        # Advanced regex for Drain

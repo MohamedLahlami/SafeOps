@@ -1,0 +1,10 @@
+# AnomalyDetector Service Dependencies
+scikit-learn>=1.3.0      # Isolation Forest
+joblib>=1.3.0            # Model serialization
+numpy>=1.24.0            # Numerical operations
+pandas>=2.0.0            # Data manipulation
+pika>=1.3.2              # RabbitMQ client
+psycopg2-binary>=2.9.9   # PostgreSQL client
+python-dotenv>=1.0.0     # Environment variables
+flask>=3.0.0             # REST API for model serving
+flask-cors>=4.0.0        # CORS for dashboard access

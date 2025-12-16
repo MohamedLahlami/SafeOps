@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # MongoDB - Primary database for raw logs and parsed templates
@@ -40,7 +40,11 @@ services:
     networks:
       - safeops-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-safeops} -d ${POSTGRES_DB:-safeops_metrics}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-safeops} -d ${POSTGRES_DB:-safeops_metrics}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -51,7 +55,7 @@ services:
     container_name: safeops-rabbitmq
     restart: unless-stopped
     ports:
-      - "5672:5672"   # AMQP protocol
+      - "5672:5672" # AMQP protocol
       - "15672:15672" # Management UI
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-safeops}

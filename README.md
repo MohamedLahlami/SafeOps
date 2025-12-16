@@ -20,6 +20,7 @@ A microservices-based DevSecOps platform for detecting security anomalies in CI/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Docker & Docker Compose
 - Node.js 18+ (for local development)
 - Python 3.9+ (for local development)
@@ -39,11 +40,11 @@ docker-compose logs -f
 
 ### Service Endpoints
 
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| MongoDB | `mongodb://localhost:27017` | admin / safeops123 |
-| TimescaleDB | `postgresql://localhost:5432/safeops_metrics` | safeops / safeops123 |
-| RabbitMQ Management | `http://localhost:15672` | safeops / safeops123 |
+| Service             | URL                                           | Credentials          |
+| ------------------- | --------------------------------------------- | -------------------- |
+| MongoDB             | `mongodb://localhost:27017`                   | admin / safeops123   |
+| TimescaleDB         | `postgresql://localhost:5432/safeops_metrics` | safeops / safeops123 |
+| RabbitMQ Management | `http://localhost:15672`                      | safeops / safeops123 |
 
 ## 📁 Project Structure
 

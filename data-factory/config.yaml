@@ -1,0 +1,93 @@
+# SafeOps Synthetic Data Generator Configuration
+# Adjust these parameters to control data generation
+
+# Output settings
+output:
+  training_csv: "output/training_data.csv"
+  test_csv: "output/test_data.csv"
+  webhooks_dir: "output/webhooks" # JSON files mimicking real webhooks
+
+# Dataset size
+dataset:
+  total_builds: 1000
+  train_ratio: 0.8 # 80% training, 20% test
+
+# Normal build profile
+normal:
+  ratio: 0.90 # 90% of builds are normal
+  duration:
+    mean: 120 # seconds
+    std: 15
+  log_lines:
+    mean: 500
+    std: 100
+  errors:
+    mean: 0.5
+    std: 1
+  warnings:
+    mean: 3
+    std: 2
+
+# Attack profiles
+attacks:
+  # Cryptomining - inflated duration
+  cryptomining:
+    ratio: 0.05 # 5% of builds
+    duration:
+      mean: 600 # 5x normal
+      std: 120
+    log_lines:
+      mean: 800
+      std: 150
+    # Suspicious patterns injected into logs
+    patterns:
+      - "xmrig"
+      - "minerd"
+      - "cryptonight"
+      - "stratum+tcp"
+      - "hashrate"
+
+  # Data exfiltration - inflated log volume & network activity
+  exfiltration:
+    ratio: 0.05 # 5% of builds
+    duration:
+      mean: 180
+      std: 30
+    log_lines:
+      mean: 5000 # 10x normal
+      std: 1000
+    patterns:
+      - "curl -X POST"
+      - "wget --post-data"
+      - "base64 -d"
+      - "nc -e /bin/sh"
+      - "$(cat /etc/passwd)"
+
+# CI/CD step templates (mimics real pipelines)
+pipeline_steps:
+  - name: "checkout"
+    duration_ratio: 0.05
+    log_template: "Checking out repository at commit {commit_sha}"
+  - name: "setup_environment"
+    duration_ratio: 0.10
+    log_template: "Setting up {language} environment version {version}"
+  - name: "install_dependencies"
+    duration_ratio: 0.20
+    log_template: "Installing dependencies from {package_file}"
+  - name: "run_tests"
+    duration_ratio: 0.35
+    log_template: "Running test suite: {test_count} tests"
+  - name: "build_artifact"
+    duration_ratio: 0.20
+    log_template: "Building artifact {artifact_name}"
+  - name: "deploy"
+    duration_ratio: 0.10
+    log_template: "Deploying to {environment}"
+
+# Repositories for realistic data
+repositories:
+  - "acme-corp/web-app"
+  - "acme-corp/api-service"
+  - "acme-corp/data-pipeline"
+  - "startup-io/mobile-backend"
+  - "startup-io/auth-service"

@@ -8,6 +8,8 @@ const { v4: uuidv4 } = require("uuid");
 const { verifySignature } = require("../middleware/signature");
 const rabbitmq = require("../services/rabbitmq");
 const mongodb = require("../services/mongodb");
+const { getGitHubService } = require("../services/github");
+const { getGitLabService } = require("../services/gitlab");
 const logger = require("../config/logger");
 
 const router = express.Router();
@@ -43,6 +45,16 @@ router.post("/webhook", verifySignature, async (req, res) => {
       contentLength: req.headers["content-length"],
     });
 
+    // Try to fetch additional logs/metrics from provider API
+    let enrichedMetrics = null;
+    if (provider === "github" && payload.action === "completed") {
+      const githubService = getGitHubService();
+      enrichedMetrics = await githubService.processWorkflowRunEvent(payload);
+    } else if (provider === "gitlab") {
+      const gitlabService = getGitLabService();
+      enrichedMetrics = await gitlabService.processPipelineEvent(payload);
+    }
+
     // Store in MongoDB for audit trail
     const mongoId = await mongodb.storeRawLog(
       payload,
@@ -50,7 +62,7 @@ router.post("/webhook", verifySignature, async (req, res) => {
       signatureValid
     );
 
-    // Enrich payload with metadata
+    // Enrich payload with metadata and fetched metrics
     const enrichedPayload = {
       _meta: {
         request_id: requestId,
@@ -59,8 +71,11 @@ router.post("/webhook", verifySignature, async (req, res) => {
         signature_valid: signatureValid,
         received_at: new Date().toISOString(),
         source_ip: req.ip,
+        logs_fetched: !!enrichedMetrics,
       },
       ...payload,
+      // Merge in any fetched metrics
+      ...(enrichedMetrics && { _enriched: enrichedMetrics }),
     };
 
     // Publish to RabbitMQ for processing
@@ -73,6 +88,7 @@ router.post("/webhook", verifySignature, async (req, res) => {
       buildId,
       mongoStored: !!mongoId,
       queuePublished: published,
+      logsFetched: !!enrichedMetrics,
       processingTimeMs: processingTime,
     });
 
@@ -82,6 +98,7 @@ router.post("/webhook", verifySignature, async (req, res) => {
       build_id: buildId,
       stored: !!mongoId,
       queued: published,
+      logs_fetched: !!enrichedMetrics,
       processing_time_ms: processingTime,
     });
   } catch (error) {

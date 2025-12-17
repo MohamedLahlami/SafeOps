@@ -348,6 +348,38 @@ class DatabaseManager:
                 for row in cursor.fetchall()
             ]
     
+    def get_normal_builds_for_training(self, hours: int = 168) -> List[Dict[str, Any]]:
+        """
+        Get normal (non-anomaly) builds for model retraining.
+        
+        Returns feature data extracted from raw_features column.
+        """
+        with self.get_cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                    build_id,
+                    raw_features,
+                    created_at
+                FROM anomaly_results
+                WHERE is_anomaly = FALSE
+                  AND raw_features IS NOT NULL
+                  AND created_at > NOW() - INTERVAL '%s hours'
+                ORDER BY created_at DESC;
+            """, (hours,))
+            
+            results = []
+            for row in cursor.fetchall():
+                if row["raw_features"]:
+                    features = row["raw_features"]
+                    if isinstance(features, str):
+                        features = json.loads(features)
+                    # Add build metadata
+                    features["build_id"] = row["build_id"]
+                    features["label"] = "normal"  # All are normal
+                    results.append(features)
+            
+            return results
+    
     def close(self):
         """Close database connection."""
         if self.connection and not self.connection.closed:

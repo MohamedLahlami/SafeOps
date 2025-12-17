@@ -34,6 +34,21 @@ module.exports = {
   // Security
   webhookSecret: process.env.WEBHOOK_SECRET || "dev-secret-key",
 
+  // GitHub Integration
+  github: {
+    token: process.env.GITHUB_TOKEN || "",
+    // Enable automatic log fetching when token is provided
+    fetchLogs: !!process.env.GITHUB_TOKEN,
+  },
+
+  // GitLab Integration
+  gitlab: {
+    token: process.env.GITLAB_TOKEN || "",
+    url: process.env.GITLAB_URL || "gitlab.com",
+    // Enable automatic log fetching when token is provided
+    fetchLogs: !!process.env.GITLAB_TOKEN,
+  },
+
   // Rate Limiting
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 60000,

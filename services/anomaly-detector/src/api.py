@@ -5,8 +5,13 @@ Flask API for model serving, predictions, and statistics.
 """
 
 import os
+import io
+import tempfile
+import shutil
+from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import pandas as pd
 
 from config import config
 from logger import logger
@@ -91,6 +96,171 @@ def create_app() -> Flask:
             })
         except Exception as e:
             logger.error(f"Training failed: {e}")
+            return jsonify({"error": str(e)}), 500
+    
+    @app.route("/model/upload", methods=["POST"])
+    def upload_training_data():
+        """
+        Upload CSV training data and train the model.
+        
+        Accepts multipart/form-data with a 'file' field containing CSV data.
+        The CSV should have columns matching the model's expected features.
+        """
+        model = get_model()
+        
+        if 'file' not in request.files:
+            return jsonify({"error": "No file uploaded. Use 'file' field."}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No file selected"}), 400
+        
+        if not file.filename.endswith('.csv'):
+            return jsonify({"error": "Only CSV files are supported"}), 400
+        
+        try:
+            # Read CSV from upload
+            content = file.read().decode('utf-8')
+            df = pd.read_csv(io.StringIO(content))
+            
+            logger.info(f"Uploaded training data: {len(df)} rows, columns: {list(df.columns)}")
+            
+            # Validate required columns
+            required_cols = model.FEATURE_NAMES
+            missing_cols = [c for c in required_cols if c not in df.columns]
+            if missing_cols:
+                return jsonify({
+                    "error": f"Missing required columns: {missing_cols}",
+                    "required": required_cols,
+                    "provided": list(df.columns)
+                }), 400
+            
+            # Train the model
+            stats = model.train(df)
+            
+            return jsonify({
+                "status": "success",
+                "message": f"Model trained on {len(df)} samples",
+                "training_stats": stats
+            })
+            
+        except Exception as e:
+            logger.error(f"Upload training failed: {e}")
+            return jsonify({"error": str(e)}), 500
+    
+    @app.route("/model/retrain-from-normal", methods=["POST"])
+    def retrain_from_normal_builds():
+        """
+        Retrain the model using normal (non-anomaly) builds from the database.
+        
+        Request body:
+        {
+            "min_samples": 100,    // Minimum samples required (default 100)
+            "hours": 168           // Look back period in hours (default 168 = 1 week)
+        }
+        """
+        model = get_model()
+        db = get_database()
+        data = request.get_json() or {}
+        
+        min_samples = data.get("min_samples", 100)
+        hours = data.get("hours", 168)  # Default: 1 week
+        
+        try:
+            # Get normal builds from database
+            normal_builds = db.get_normal_builds_for_training(hours=hours)
+            
+            if len(normal_builds) < min_samples:
+                return jsonify({
+                    "error": f"Insufficient normal builds. Found {len(normal_builds)}, need {min_samples}",
+                    "suggestion": "Increase 'hours' parameter or lower 'min_samples'"
+                }), 400
+            
+            # Convert to DataFrame
+            df = pd.DataFrame(normal_builds)
+            
+            logger.info(f"Retraining model with {len(df)} normal builds from last {hours} hours")
+            
+            # Train the model
+            stats = model.train(df)
+            
+            return jsonify({
+                "status": "success",
+                "message": f"Model retrained on {len(df)} normal builds",
+                "training_stats": stats,
+                "data_period_hours": hours
+            })
+            
+        except Exception as e:
+            logger.error(f"Retrain from normal builds failed: {e}")
+            return jsonify({"error": str(e)}), 500
+    
+    @app.route("/model/versions", methods=["GET"])
+    def list_model_versions():
+        """List available model versions."""
+        model_dir = os.path.dirname(config.MODEL_PATH)
+        
+        versions = []
+        if os.path.exists(model_dir):
+            for f in os.listdir(model_dir):
+                if f.endswith('_meta.json'):
+                    meta_path = os.path.join(model_dir, f)
+                    try:
+                        import json
+                        with open(meta_path) as mf:
+                            meta = json.load(mf)
+                            versions.append({
+                                "version": meta.get("version", "unknown"),
+                                "trained_at": meta.get("trained_at"),
+                                "n_samples": meta.get("training_stats", {}).get("n_samples"),
+                                "file": f.replace('_meta.json', '.joblib')
+                            })
+                    except:
+                        pass
+        
+        return jsonify({
+            "current_version": get_model().model_version,
+            "available_versions": versions
+        })
+    
+    @app.route("/model/backup", methods=["POST"])
+    def backup_model():
+        """Create a backup of the current model."""
+        model = get_model()
+        
+        if not model.is_trained:
+            return jsonify({"error": "No trained model to backup"}), 400
+        
+        try:
+            # Create backup with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_dir = os.path.join(os.path.dirname(config.MODEL_PATH), "backups")
+            os.makedirs(backup_dir, exist_ok=True)
+            
+            model_name = os.path.basename(config.MODEL_PATH)
+            backup_name = f"{model_name.replace('.joblib', '')}_{timestamp}.joblib"
+            backup_path = os.path.join(backup_dir, backup_name)
+            
+            shutil.copy(config.MODEL_PATH, backup_path)
+            
+            # Copy scaler too
+            scaler_path = config.MODEL_PATH.replace('.joblib', '_scaler.joblib')
+            if os.path.exists(scaler_path):
+                shutil.copy(scaler_path, backup_path.replace('.joblib', '_scaler.joblib'))
+            
+            # Copy metadata
+            meta_path = config.MODEL_PATH.replace('.joblib', '_meta.json')
+            if os.path.exists(meta_path):
+                shutil.copy(meta_path, backup_path.replace('.joblib', '_meta.json'))
+            
+            return jsonify({
+                "status": "success",
+                "backup_path": backup_path,
+                "timestamp": timestamp
+            })
+            
+        except Exception as e:
+            logger.error(f"Model backup failed: {e}")
             return jsonify({"error": str(e)}), 500
     
     # ========================================

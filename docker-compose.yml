@@ -97,6 +97,11 @@ services:
       RABBITMQ_QUEUE: raw_logs
       # Webhook security
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-your-webhook-secret}
+      # GitHub Integration (optional - for fetching actual logs)
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      # GitLab Integration (optional - for fetching actual logs)
+      GITLAB_TOKEN: ${GITLAB_TOKEN:-}
+      GITLAB_URL: ${GITLAB_URL:-gitlab.com}
     depends_on:
       mongodb:
         condition: service_healthy

@@ -41,3 +41,7 @@ Thumbs.db
 coverage/
 .coverage
 htmlcov/
+
+# logs
+test_logs_extracted/
+test_logs.zip

@@ -19,6 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code and models
 COPY src/ ./src/
 COPY models/ ./models/
+COPY data/ ./data/
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash safeops && \

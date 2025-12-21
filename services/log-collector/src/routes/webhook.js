@@ -140,6 +140,7 @@ router.post("/webhook/gitlab", verifySignature, async (req, res) => {
 /**
  * POST /webhook/test
  * Test endpoint for synthetic data injection (development only)
+ * Now also fetches real logs from GitHub if workflow_run data is provided
  */
 router.post("/webhook/test", async (req, res) => {
   const requestId = uuidv4();
@@ -149,6 +150,38 @@ router.post("/webhook/test", async (req, res) => {
 
     logger.info("Test webhook received", { requestId });
 
+    // Try to fetch real logs if this looks like a GitHub workflow_run
+    let enrichedMetrics = null;
+    const githubService = getGitHubService();
+
+    if (payload.action === "completed" && payload.workflow_run) {
+      // Full webhook payload format
+      enrichedMetrics = await githubService.processWorkflowRunEvent(payload);
+    } else if (payload.repository && payload.run_id) {
+      // Simple test format: { repository: "owner/repo", run_id: 123 }
+      const repoStr = payload.repository; // Save the string before we overwrite
+      const [owner, repo] = repoStr.split("/");
+
+      // Create properly structured payload
+      payload.action = "completed";
+      payload.workflow_run = {
+        id: payload.run_id,
+        name: "Test Workflow",
+        head_branch: "main",
+        head_sha: "test-sha",
+        status: "completed",
+        conclusion: "success",
+      };
+      payload.repository = {
+        full_name: repoStr,
+        name: repo,
+        owner: { login: owner },
+      };
+
+      // Fetch logs with the synthetic payload
+      enrichedMetrics = await githubService.processWorkflowRunEvent(payload);
+    }
+
     // Enrich payload
     const enrichedPayload = {
       _meta: {
@@ -157,8 +190,11 @@ router.post("/webhook/test", async (req, res) => {
         signature_valid: true,
         received_at: new Date().toISOString(),
         is_test: true,
+        logs_fetched: !!enrichedMetrics,
       },
       ...payload,
+      // Merge in any fetched metrics (including raw_logs)
+      ...(enrichedMetrics && { _enriched: enrichedMetrics }),
     };
 
     // Store and publish
@@ -170,6 +206,7 @@ router.post("/webhook/test", async (req, res) => {
       request_id: requestId,
       stored: !!mongoId,
       queued: published,
+      logs_fetched: !!enrichedMetrics,
     });
   } catch (error) {
     logger.error("Test webhook failed", { requestId, error: error.message });

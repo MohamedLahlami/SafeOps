@@ -1,0 +1,182 @@
+{
+  "action": "completed",
+  "workflow_run": {
+    "id": 489,
+    "name": "CI Pipeline",
+    "head_branch": "feature/feat-497",
+    "head_sha": "7d1274c404b8c7a4dd1f7367ab470a0ff7bca438",
+    "status": "completed",
+    "conclusion": "success",
+    "run_started_at": "2025-12-15T12:51:28.752009Z",
+    "updated_at": "2025-12-15T12:54:01.613630Z"
+  },
+  "repository": {
+    "full_name": "startup-io/mobile-backend",
+    "name": "mobile-backend"
+  },
+  "sender": {
+    "login": "alice"
+  },
+  "_safeops_extended": {
+    "raw_logs": "=== Step: integration_tests ===\nUploading artifact 'coverage' (27 files)\nConnection established\n=== Step integration_tests completed ===\n=== Step: restore_cache ===\nArtifact uploaded: build.tar.gz (22MB)\nProcessing...\n=== Step restore_cache completed ===\n=== Step: deploy_staging ===\nTest Suites: 16 passed, 16 total\nFetching submodules...\n=== Step deploy_staging completed ===\n=== Step: setup_node ===\n\u2713 Step 'checkout' succeeded\nCompiling utils/utils.go...\n=== Step setup_node completed ===\n=== Step: build ===\n\u26a0 DEPRECATION: Feature will be removed in v2.0\nCache miss for key-4672\n=== Step build completed ===\n=== Step: save_cache ===\nNODE_ENV=test\n[12:51:28] WARN: Deprecated API usage\n=== Step save_cache completed ===\n=== Step: unit_tests ===\nFetching submodules...\nCompleted.\n=== Step unit_tests completed ===\n=== Step: setup_environment ===\n[12:51:28] INFO: Request completed\nSwitched to branch 'hotfix/task-851'\n=== Step setup_environment completed ===\n=== Step: deploy_production ===\nStep 12/23: Running migrations\nUsing Python 3.12\n=== Step deploy_production completed ===\n=== Step: e2e_tests ===\nCache miss for key-7869\n\u2713 Step 'test' succeeded\n=== Step e2e_tests completed ===\n=== Step: type_check ===\n[12:51:28] INFO: Request completed\nyarn add: Done in 16.84s\n=== Step type_check completed ===\n=== Step: checkout ===\nCompiling lib/service.java...\nPOST /data - 201 (399ms)\n=== Step checkout completed ===\n=== Step: install_dependencies ===\nUsing Node.js 20.3.7\nCompiling src/index.js...\n=== Step install_dependencies completed ===",
+    "steps": [
+      {
+        "name": "integration_tests",
+        "status": "success",
+        "started_at": "2025-12-15T12:51:28.752009",
+        "finished_at": "2025-12-15T12:51:45.736634",
+        "log_lines": [
+          "=== Step: integration_tests ===",
+          "Uploading artifact 'coverage' (27 files)",
+          "Connection established",
+          "=== Step integration_tests completed ==="
+        ]
+      },
+      {
+        "name": "restore_cache",
+        "status": "success",
+        "started_at": "2025-12-15T12:51:45.736634",
+        "finished_at": "2025-12-15T12:51:50.832021",
+        "log_lines": [
+          "=== Step: restore_cache ===",
+          "Artifact uploaded: build.tar.gz (22MB)",
+          "Processing...",
+          "=== Step restore_cache completed ==="
+        ]
+      },
+      {
+        "name": "deploy_staging",
+        "status": "success",
+        "started_at": "2025-12-15T12:51:50.832021",
+        "finished_at": "2025-12-15T12:51:59.324333",
+        "log_lines": [
+          "=== Step: deploy_staging ===",
+          "Test Suites: 16 passed, 16 total",
+          "Fetching submodules...",
+          "=== Step deploy_staging completed ==="
+        ]
+      },
+      {
+        "name": "setup_node",
+        "status": "success",
+        "started_at": "2025-12-15T12:51:59.324333",
+        "finished_at": "2025-12-15T12:52:07.816645",
+        "log_lines": [
+          "=== Step: setup_node ===",
+          "\u2713 Step 'checkout' succeeded",
+          "Compiling utils/utils.go...",
+          "=== Step setup_node completed ==="
+        ]
+      },
+      {
+        "name": "build",
+        "status": "success",
+        "started_at": "2025-12-15T12:52:07.816645",
+        "finished_at": "2025-12-15T12:52:33.293582",
+        "log_lines": [
+          "=== Step: build ===",
+          "\u26a0 DEPRECATION: Feature will be removed in v2.0",
+          "Cache miss for key-4672",
+          "=== Step build completed ==="
+        ]
+      },
+      {
+        "name": "save_cache",
+        "status": "success",
+        "started_at": "2025-12-15T12:52:33.293582",
+        "finished_at": "2025-12-15T12:52:38.388969",
+        "log_lines": [
+          "=== Step: save_cache ===",
+          "NODE_ENV=test",
+          "[12:51:28] WARN: Deprecated API usage",
+          "=== Step save_cache completed ==="
+        ]
+      },
+      {
+        "name": "unit_tests",
+        "status": "success",
+        "started_at": "2025-12-15T12:52:38.388969",
+        "finished_at": "2025-12-15T12:53:03.865906",
+        "log_lines": [
+          "=== Step: unit_tests ===",
+          "Fetching submodules...",
+          "Completed.",
+          "=== Step unit_tests completed ==="
+        ]
+      },
+      {
+        "name": "setup_environment",
+        "status": "success",
+        "started_at": "2025-12-15T12:53:03.865906",
+        "finished_at": "2025-12-15T12:53:12.358218",
+        "log_lines": [
+          "=== Step: setup_environment ===",
+          "[12:51:28] INFO: Request completed",
+          "Switched to branch 'hotfix/task-851'",
+          "=== Step setup_environment completed ==="
+        ]
+      },
+      {
+        "name": "deploy_production",
+        "status": "success",
+        "started_at": "2025-12-15T12:53:12.358218",
+        "finished_at": "2025-12-15T12:53:15.755143",
+        "log_lines": [
+          "=== Step: deploy_production ===",
+          "Step 12/23: Running migrations",
+          "Using Python 3.12",
+          "=== Step deploy_production completed ==="
+        ]
+      },
+      {
+        "name": "e2e_tests",
+        "status": "success",
+        "started_at": "2025-12-15T12:53:15.755143",
+        "finished_at": "2025-12-15T12:53:24.247455",
+        "log_lines": [
+          "=== Step: e2e_tests ===",
+          "Cache miss for key-7869",
+          "\u2713 Step 'test' succeeded",
+          "=== Step e2e_tests completed ==="
+        ]
+      },
+      {
+        "name": "type_check",
+        "status": "success",
+        "started_at": "2025-12-15T12:53:24.247455",
+        "finished_at": "2025-12-15T12:53:32.739767",
+        "log_lines": [
+          "=== Step: type_check ===",
+          "[12:51:28] INFO: Request completed",
+          "yarn add: Done in 16.84s",
+          "=== Step type_check completed ==="
+        ]
+      },
+      {
+        "name": "checkout",
+        "status": "success",
+        "started_at": "2025-12-15T12:53:32.739767",
+        "finished_at": "2025-12-15T12:53:36.136692",
+        "log_lines": [
+          "=== Step: checkout ===",
+          "Compiling lib/service.java...",
+          "POST /data - 201 (399ms)",
+          "=== Step checkout completed ==="
+        ]
+      },
+      {
+        "name": "install_dependencies",
+        "status": "success",
+        "started_at": "2025-12-15T12:53:36.136692",
+        "finished_at": "2025-12-15T12:54:01.613629",
+        "log_lines": [
+          "=== Step: install_dependencies ===",
+          "Using Node.js 20.3.7",
+          "Compiling src/index.js...",
+          "=== Step install_dependencies completed ==="
+        ]
+      }
+    ],
+    "label": "normal"
+  }
+}

@@ -54,24 +54,17 @@ class IsolationForestModel:
     """
     
     # Feature names expected by the model (must match LogParser output)
-    # These are the features available in synthetic training data
+    # All 12 features including security-related ones for detecting
+    # cryptomining and data exfiltration attacks
     FEATURE_NAMES = [
+        # Core features (6)
         "duration_seconds",
         "log_line_count",
         "char_density",
         "error_count",
         "warning_count",
         "step_count",
-    ]
-    
-    # Extended features from LogParser (used for explanations)
-    EXTENDED_FEATURE_NAMES = [
-        "duration_seconds",
-        "log_line_count",
-        "char_density",
-        "error_count",
-        "warning_count",
-        "step_count",
+        # Security features (6)
         "unique_templates",
         "template_entropy",
         "suspicious_pattern_count",
@@ -80,15 +73,31 @@ class IsolationForestModel:
         "base64_pattern_count",
     ]
     
+    # Alias for backwards compatibility
+    EXTENDED_FEATURE_NAMES = FEATURE_NAMES
+    
     # Thresholds for generating explanations
+    # Note: These are for human-readable explanations, not for model decisions.
+    # The model uses the actual feature distribution for anomaly detection.
+    # These thresholds should be tuned based on your baseline data.
+    # Updated with more realistic thresholds based on GitHub Actions logs.
     FEATURE_THRESHOLDS = {
-        "duration_seconds": {"high": 300, "very_high": 600, "reason": "Unusually long build duration"},
-        "log_line_count": {"high": 2000, "very_high": 5000, "reason": "Excessive log volume"},
-        "suspicious_pattern_count": {"high": 3, "very_high": 10, "reason": "Suspicious command patterns detected"},
-        "external_ip_count": {"high": 5, "very_high": 20, "reason": "Multiple external IP connections"},
-        "external_url_count": {"high": 10, "very_high": 50, "reason": "Excessive external URL access"},
-        "base64_pattern_count": {"high": 5, "very_high": 20, "reason": "Potential data obfuscation"},
-        "error_count": {"high": 20, "very_high": 50, "reason": "High error count"},
+        # Core features - based on typical GitHub Actions builds
+        "duration_seconds": {"high": 600, "very_high": 1800, "reason": "Unusually long build duration"},
+        "log_line_count": {"high": 8000, "very_high": 15000, "reason": "Excessive log volume"},
+        "char_density": {"high": 150, "very_high": 300, "reason": "Unusually dense log lines"},
+        "error_count": {"high": 200, "very_high": 500, "reason": "High error count"},
+        "warning_count": {"high": 300, "very_high": 600, "reason": "Excessive warnings"},
+        "step_count": {"high": 30, "very_high": 50, "reason": "Unusual number of pipeline steps"},
+        # Template features (real logs have 200-400 unique templates)
+        "unique_templates": {"high": 600, "very_high": 1000, "reason": "Unusual log pattern diversity"},
+        "template_entropy": {"high": 8.0, "very_high": 10.0, "reason": "High log randomness (possible obfuscation)"},
+        # Security features - CRITICAL for attack detection
+        # Normal builds should have 0 for these after the synthetic generator fix
+        "suspicious_pattern_count": {"high": 1, "very_high": 5, "reason": "Suspicious command patterns detected"},
+        "external_ip_count": {"high": 1, "very_high": 5, "reason": "Multiple external IP connections"},
+        "external_url_count": {"high": 10, "very_high": 50, "reason": "Excessive untrusted URL access"},
+        "base64_pattern_count": {"high": 5, "very_high": 15, "reason": "Potential data obfuscation"},
     }
     
     def __init__(self):

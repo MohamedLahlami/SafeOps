@@ -123,15 +123,62 @@ class FeatureExtractor:
     
     # Regex patterns for security detection
     IP_PATTERN = re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b')
-    URL_PATTERN = re.compile(r'https?://[^\s<>"\']+')
-    BASE64_PATTERN = re.compile(r'base64\s+(?:-d|-decode)?|[A-Za-z0-9+/]{40,}={0,2}')
+    URL_PATTERN = re.compile(r'https?://([a-zA-Z0-9.-]+)')
+    # Stricter base64 pattern - must have = padding or be in base64 context
+    # Excludes hex strings (SHA hashes) which are only 0-9a-f
+    BASE64_PATTERN = re.compile(r'(?:base64\s+(?:-d|-decode)?|[A-Za-z0-9+/]{50,}={1,2})')
+    
+    # Trusted domains - URLs from these won't count as external
+    TRUSTED_DOMAINS = {
+        # Source control & CI/CD
+        'github.com', 'githubusercontent.com', 'github.io', 'raw.githubusercontent.com',
+        'gitlab.com', 'gitlab.io', 'bitbucket.org', 'azure.com', 'dev.azure.com',
+        'githubcopilot.com', 'api.githubcopilot.com',  # GitHub Copilot
+        
+        # Package registries - Node.js
+        'npmjs.org', 'registry.npmjs.org', 'npmjs.com', 'yarnpkg.com', 
+        'registry.yarnpkg.com', 'nodejs.org',
+        
+        # Package registries - Python
+        'pypi.org', 'files.pythonhosted.org', 'python.org', 'pythonhosted.org',
+        
+        # Package registries - Java/Maven
+        'maven.org', 'mavencentral.org', 'jfrog.io', 'repo1.maven.org', 'search.maven.org',
+        'repo.maven.apache.org', 'maven.apache.org', 'central.sonatype.com',
+        'repository.apache.org', 'plugins.gradle.org', 'gradle.org',
+        
+        # Container registries
+        'docker.io', 'docker.com', 'hub.docker.com', 'gcr.io', 'ghcr.io',
+        'quay.io', 'amazonaws.com', 'ecr.aws', 'azurecr.io', 'mcr.microsoft.com',
+        
+        # Cloud providers
+        'googleapis.com', 'storage.googleapis.com', 'cloudflare.com',
+        'microsoft.com', 'windows.net', 'azure.net', 'vercel.app',
+        'blob.core.windows.net',  # Azure blob storage
+        
+        # CDNs and common services
+        'cloudfront.net', 'akamaized.net', 'unpkg.com', 'cdnjs.cloudflare.com',
+        'jsdelivr.net', 'cdn.jsdelivr.net', 'fastly.net',
+        
+        # Other trusted sources
+        'nuget.org', 'rubygems.org', 'crates.io', 'packagist.org',
+        'pub.dev', 'cocoapods.org', 'go.dev', 'pkg.go.dev', 'proxy.golang.org',
+        'rust-lang.org', 'cran.r-project.org',
+        
+        # Documentation & tools
+        'eslint.org', 'rollupjs.org', 'babeljs.io', 'webpack.js.org',
+        'reactjs.org', 'vuejs.org', 'angular.io', 'typescriptlang.org',
+        'jestjs.io', 'mochajs.org', 'getbootstrap.com', 'tailwindcss.com',
+        'gnu.org', 'docs.github.com',  # Documentation sites
+    }
     
     SUSPICIOUS_COMMANDS = [
-        "curl.*POST", "wget.*post", "nc\s+(-e|-c)", 
-        "bash\s+-i", "/dev/tcp", "mkfifo",
-        "xmrig", "minerd", "cryptonight", "stratum",
-        "cat\s+/etc/passwd", "cat\s+/etc/shadow",
-        r"\$\(.*\)", "eval\s+"
+        r"curl\s+.*-X\s+POST", r"wget\s+.*--post", r"\bnc\s+(-e|-c)\b", 
+        r"bash\s+-i\b", r"/dev/tcp/", r"\bmkfifo\b",
+        r"\bxmrig\b", r"\bminerd\b", r"\bcryptonight\b", r"stratum\+tcp://",
+        r"cat\s+/etc/passwd", r"cat\s+/etc/shadow",
+        # More specific eval pattern - must be at start of command or after semicolon/pipe
+        r"(?:^|;|\|)\s*eval\s+",
     ]
     
     ERROR_KEYWORDS = ['error', 'failed', 'failure', 'exception', 'fatal', 'critical']
@@ -246,8 +293,22 @@ class FeatureExtractor:
             event_dist[step_name] = len(step_lines)
         
         # Security feature extraction
-        unique_ips = set(self.IP_PATTERN.findall(raw_logs))
-        external_urls = self.URL_PATTERN.findall(raw_logs)
+        all_ips = set(self.IP_PATTERN.findall(raw_logs))
+        # Filter out local/private IPs and version numbers that look like IPs
+        external_ips = [
+            ip for ip in all_ips
+            if not ip.startswith(('0.', '127.', '10.', '192.168.', '172.'))
+            and not ip.startswith('1.') and not ip.startswith('2.') and not ip.startswith('3.')  # Version numbers
+            and all(0 <= int(octet) <= 255 for octet in ip.split('.'))
+        ]
+        
+        # Filter out trusted domains from URL count
+        all_domains = self.URL_PATTERN.findall(raw_logs)
+        external_urls = [
+            domain for domain in all_domains
+            if not any(domain.lower().endswith(trusted) for trusted in self.TRUSTED_DOMAINS)
+        ]
+        
         base64_matches = len(self.BASE64_PATTERN.findall(raw_logs))
         
         suspicious_count = sum(
@@ -267,7 +328,7 @@ class FeatureExtractor:
             warning_count=warning_count,
             step_count=len(steps),
             event_distribution=event_dist,
-            unique_ips_contacted=len(unique_ips),
+            unique_ips_contacted=len(external_ips),
             external_urls_count=len(external_urls),
             base64_patterns=base64_matches,
             suspicious_commands=suspicious_count

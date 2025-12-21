@@ -1,40 +1,58 @@
 {
   "version": "1.0.0",
-  "trained_at": "2025-12-15T23:49:26.571821",
+  "trained_at": "2025-12-21T11:58:41.827749",
   "feature_names": [
     "duration_seconds",
     "log_line_count",
     "char_density",
     "error_count",
     "warning_count",
-    "step_count"
+    "step_count",
+    "unique_templates",
+    "template_entropy",
+    "suspicious_pattern_count",
+    "external_ip_count",
+    "external_url_count",
+    "base64_pattern_count"
   ],
   "training_stats": {
-    "n_samples": 723,
-    "n_features": 6,
-    "n_anomalies_detected": 73,
-    "anomaly_ratio": 0.10096818810511757,
-    "score_mean": 0.07317477571432318,
-    "score_std": 0.04961557498722276,
+    "n_samples": 714,
+    "n_features": 12,
+    "n_anomalies_detected": 36,
+    "anomaly_ratio": 0.05042016806722689,
+    "score_mean": 0.10446137733650382,
+    "score_std": 0.05509092789848142,
     "feature_means": {
-      "duration_seconds": 120.37064381742739,
-      "log_line_count": 484.3817427385892,
-      "char_density": 28.468547717842327,
-      "error_count": 14.293222683264178,
-      "warning_count": 22.081604426002766,
-      "step_count": 6.0
+      "duration_seconds": 179.24957586834734,
+      "log_line_count": 2001.5714285714287,
+      "char_density": 27.87120448179272,
+      "error_count": 59.49299719887955,
+      "warning_count": 92.47619047619048,
+      "step_count": 12.466386554621849,
+      "unique_templates": 254.8795518207283,
+      "template_entropy": 7.248309663865546,
+      "suspicious_pattern_count": 0.0,
+      "external_ip_count": 0.0,
+      "external_url_count": 0.0,
+      "base64_pattern_count": 0.0
     },
     "feature_stds": {
-      "duration_seconds": 14.272650839253973,
-      "log_line_count": 102.51160760573197,
-      "char_density": 0.3669877667161397,
-      "error_count": 4.720708898938297,
-      "warning_count": 6.74959579572224,
-      "step_count": 0.0
+      "duration_seconds": 57.17091271254962,
+      "log_line_count": 810.357636539804,
+      "char_density": 0.2972259876286407,
+      "error_count": 25.69833806344281,
+      "warning_count": 38.49161755047854,
+      "step_count": 1.721774288429185,
+      "unique_templates": 30.33990797725231,
+      "template_entropy": 0.15116541204881115,
+      "suspicious_pattern_count": 0.0,
+      "external_ip_count": 0.0,
+      "external_url_count": 0.0,
+      "base64_pattern_count": 0.0
     }
   },
   "config": {
     "n_estimators": 100,
-    "contamination": 0.1
+    "contamination": 0.05
   }
 }

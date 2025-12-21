@@ -102,8 +102,93 @@ class FeatureExtractor:
     
     # Regex patterns for security detection
     IP_PATTERN = re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b')
-    URL_PATTERN = re.compile(r'https?://[^\s<>"\']+')
-    BASE64_PATTERN = re.compile(r'base64\s*(-d|-decode)?|[A-Za-z0-9+/]{40,}={0,2}')
+    
+    # Simple URL pattern - we'll filter in code
+    URL_PATTERN = re.compile(r'https?://([^\s<>"\']+)', re.IGNORECASE)
+    
+    # Trusted domains to exclude from external URL count
+    # Include common CI/CD, package registry, and cloud provider domains
+    TRUSTED_DOMAINS = {
+        # GitHub
+        'github.com', 'githubusercontent.com', 'github.io', 'githubassets.com',
+        'pipelines.actions.githubusercontent.com',
+        'actions-results.githubusercontent.com',
+        'objects.githubusercontent.com',
+        'codeload.github.com',
+        # Package registries - JavaScript/Node
+        'npmjs.org', 'npmjs.com', 'registry.npmjs.org', 'npm.pkg.github.com',
+        'yarnpkg.com', 'registry.yarnpkg.com',
+        'unpkg.com', 'esm.sh', 'skypack.dev', 'deno.land',
+        # Package registries - Python
+        'pypi.org', 'files.pythonhosted.org', 'pypi.python.org',
+        # Package registries - Java/Maven
+        'maven.org', 'mavencentral.org', 'jfrog.io', 'repo1.maven.org', 'search.maven.org',
+        'repo.maven.apache.org', 'maven.apache.org',
+        'central.sonatype.com', 'oss.sonatype.org', 's01.oss.sonatype.org',
+        # Package registries - Gradle
+        'gradle.org', 'plugins.gradle.org', 'services.gradle.org',
+        # Package registries - Ruby
+        'rubygems.org', 'bundler.io',
+        # Package registries - Rust
+        'crates.io', 'static.rust-lang.org', 'static.crates.io',
+        # Package registries - .NET
+        'nuget.org', 'api.nuget.org',
+        # Package registries - PHP
+        'packagist.org', 'getcomposer.org',
+        # Package registries - Go
+        'pkg.go.dev', 'proxy.golang.org', 'sum.golang.org', 'gopkg.in',
+        # Container registries
+        'docker.io', 'docker.com', 'registry.hub.docker.com', 'hub.docker.com',
+        'gcr.io', 'ghcr.io', 'quay.io', 'mcr.microsoft.com',
+        'index.docker.io', 'auth.docker.io', 'production.cloudflare.docker.com',
+        # Cloud providers
+        'amazonaws.com', 's3.amazonaws.com', 'cloudfront.net',
+        'googleapis.com', 'google.com', 'gstatic.com', 'storage.googleapis.com',
+        'microsoft.com', 'azure.com', 'visualstudio.com', 'azureedge.net',
+        'blob.core.windows.net', 'windowsupdate.com',
+        # CDNs
+        'cloudflare.com', 'cloudflare-ipfs.com', 
+        'fastly.net', 'cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com',
+        'bootstrapcdn.com', 'fontawesome.com', 'maxcdn.com',
+        # CI/CD and dev tools
+        'circleci.com', 'travis-ci.org', 'travis-ci.com',
+        'sonarcloud.io', 'sonarqube.org', 'sonar.io',
+        'codecov.io', 'coveralls.io', 'codeclimate.com',
+        'shields.io', 'img.shields.io', 'badge.fury.io',
+        'sentry.io', 'datadog.com', 'newrelic.com',
+        # Development tools and libraries
+        'eslint.org', 'typescript-eslint.io', 'prettier.io',
+        'rollupjs.org', 'webpack.js.org', 'parceljs.org', 'vitejs.dev', 'esbuild.github.io',
+        'babeljs.io', 'swc.rs', 'terser.org',
+        'jestjs.io', 'mochajs.org', 'jasmine.github.io', 'karma-runner.github.io',
+        'reactjs.org', 'vuejs.org', 'angular.io', 'svelte.dev', 'nextjs.org',
+        'typescriptlang.org', 'flow.org', 'reasonml.github.io',
+        'expressjs.com', 'fastify.io', 'nestjs.com', 'koajs.com',
+        'apache.org', 'eclipse.org', 'spring.io', 'quarkus.io',
+        'jetbrains.com', 'intellij.com',
+        # Common tools and runtime
+        'nodejs.org', 'python.org', 'ruby-lang.org', 'java.com', 'oracle.com',
+        'rust-lang.org', 'golang.org', 'dotnet.microsoft.com',
+        'ubuntu.com', 'debian.org', 'alpine-linux.org', 'archlinux.org',
+        'kernel.org', 'gnu.org', 'sourceforge.net',
+        'brew.sh', 'chocolatey.org', 'scoop.sh',
+        # Documentation and references
+        'docs.github.com', 'developer.mozilla.org', 'w3.org', 'whatwg.org',
+        'devdocs.io', 'readthedocs.io', 'readthedocs.org',
+        # Local
+        'localhost', '127.0.0.1', '0.0.0.0',
+    }
+    
+    # Base64 pattern - more restrictive, requires context suggesting data exfil
+    # Must have base64 command OR very long string (100+ chars) with encoding suffix
+    BASE64_PATTERN = re.compile(
+        r'(?:'
+        r'base64\s*(?:-d|-decode|--decode)|'  # base64 decode commands
+        r'echo\s+["\']?[A-Za-z0-9+/]{50,}={0,2}|'  # echo with encoded data
+        r'\|\s*base64'  # piping to base64
+        r')',
+        re.IGNORECASE
+    )
     
     # Suspicious command patterns (cryptomining, exfiltration, reverse shells)
     SUSPICIOUS_PATTERNS = [
@@ -287,7 +372,29 @@ class FeatureExtractor:
         all_text = "\n".join(log_lines)
         suspicious_count = self._count_suspicious_patterns(all_text)
         external_ips = set(self.IP_PATTERN.findall(all_text))
-        external_urls = self.URL_PATTERN.findall(all_text)
+        
+        # Count URLs, filtering out trusted domains
+        all_urls = self.URL_PATTERN.findall(all_text)
+        untrusted_urls = []
+        untrusted_domains = set()
+        for url in all_urls:
+            # Extract domain from URL (first part before /)
+            domain = url.split('/')[0].lower()
+            # Remove port if present
+            domain = domain.split(':')[0]
+            # Check if it's a trusted domain
+            is_trusted = any(domain.endswith(trusted) for trusted in self.TRUSTED_DOMAINS)
+            if not is_trusted:
+                untrusted_urls.append(url)
+                untrusted_domains.add(domain)
+        
+        # Log untrusted domains if there are many (helps with debugging)
+        if len(untrusted_urls) > 100:
+            logger.warning(
+                f"High untrusted URL count ({len(untrusted_urls)}). "
+                f"Sample untrusted domains: {list(untrusted_domains)[:10]}"
+            )
+        
         base64_count = len(self.BASE64_PATTERN.findall(all_text))
         
         # Filter out private IPs
@@ -308,7 +415,7 @@ class FeatureExtractor:
             template_entropy=round(template_entropy, 4),
             suspicious_pattern_count=suspicious_count,
             external_ip_count=len(public_ips),
-            external_url_count=len(external_urls),
+            external_url_count=len(untrusted_urls),
             base64_pattern_count=base64_count,
             provider=provider,
             processed_at=datetime.utcnow().isoformat() + "Z",

@@ -37,7 +37,9 @@ class Config:
     
     # Model Configuration
     MODEL_PATH = os.getenv("MODEL_PATH", str(_SERVICE_DIR / "models" / "isolation_forest.joblib"))
-    CONTAMINATION = float(os.getenv("CONTAMINATION", "0.1"))
+    # Lower contamination since we're training on curated normal data only
+    # 5% is more appropriate than 10% for clean training datasets
+    CONTAMINATION = float(os.getenv("CONTAMINATION", "0.05"))
     N_ESTIMATORS = int(os.getenv("N_ESTIMATORS", "100"))
     RANDOM_STATE = int(os.getenv("RANDOM_STATE", "42"))
     

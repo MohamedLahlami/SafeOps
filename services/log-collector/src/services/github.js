@@ -327,11 +327,22 @@ class GitHubService {
    * Extract build metrics from workflow run
    */
   extractMetrics(workflowRun, jobs, logsData = null) {
-    const startTime = new Date(
-      workflowRun.run_started_at || workflowRun.created_at
-    );
-    const endTime = new Date(workflowRun.updated_at);
-    const durationSeconds = Math.floor((endTime - startTime) / 1000);
+    // Parse dates with fallbacks
+    const startTimeStr = workflowRun.run_started_at || workflowRun.created_at;
+    const endTimeStr = workflowRun.updated_at || workflowRun.run_started_at;
+
+    let startTime, endTime, durationSeconds;
+
+    if (startTimeStr) {
+      startTime = new Date(startTimeStr);
+      endTime = endTimeStr ? new Date(endTimeStr) : new Date();
+      durationSeconds = Math.max(0, Math.floor((endTime - startTime) / 1000));
+    } else {
+      // Fallback to current time if no timestamps available
+      startTime = new Date();
+      endTime = new Date();
+      durationSeconds = 0;
+    }
 
     // Count job steps
     let totalSteps = 0;

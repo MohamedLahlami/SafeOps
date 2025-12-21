@@ -45,3 +45,7 @@ htmlcov/
 # logs
 test_logs_extracted/
 test_logs.zip
+
+# Temporary files
+softwarex-osp-template.tex
+safeops-paper.tex

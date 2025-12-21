@@ -165,9 +165,12 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-safeops}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-safeops123}
       POSTGRES_DB: ${POSTGRES_DB:-safeops_metrics}
-      # RabbitMQ
-      RABBITMQ_URL: amqp://${RABBITMQ_USER:-safeops}:${RABBITMQ_PASSWORD:-safeops123}@rabbitmq:5672
-      INPUT_QUEUE: build_features
+      # RabbitMQ - use individual variables that config.py expects
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-safeops}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-safeops123}
+      FEATURES_QUEUE: build_features
       # Model settings
       MODEL_PATH: /app/models/isolation_forest.joblib
       TRAINING_DATA_PATH: /app/data/training_data.csv

@@ -88,16 +88,20 @@ class QueueHandler:
         
         Message format from LogParser:
         {
-            "build_id": "...",
-            "features": { ... 12 feature values ... },
-            "parsed_at": "...",
-            "metadata": { ... }
+            "_meta": { "request_id": "..." },
+            "features": { "build_id": "...", ... all feature values ... },
+            "feature_vector": [...],
+            "feature_names": [...]
         }
         """
         try:
             message = json.loads(body)
-            build_id = message.get("build_id", "unknown")
             features = message.get("features", {})
+            
+            # Extract build_id from features dict (where log-parser puts it)
+            # Fall back to _meta.request_id if not found
+            build_id = features.get("build_id", 
+                message.get("_meta", {}).get("request_id", "unknown"))
             
             logger.info(f"Processing features for build: {build_id}")
             

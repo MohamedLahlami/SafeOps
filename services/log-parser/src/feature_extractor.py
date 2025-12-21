@@ -163,22 +163,27 @@ class FeatureExtractor:
         """Extract features from GitHub Actions format."""
         workflow = payload.get("workflow_run", {})
         repo = payload.get("repository", {})
-        extended = payload.get("_safeops_extended", {})
+        # Check both _enriched (from GitHub integration) and _safeops_extended (legacy)
+        enriched = payload.get("_enriched", {}) or payload.get("_safeops_extended", {})
         
         # Parse timestamps
         started_str = workflow.get("run_started_at", "")
         finished_str = workflow.get("updated_at", "")
         duration = self._calculate_duration(started_str, finished_str)
         
-        # Get raw logs and steps
-        raw_logs = extended.get("raw_logs", "")
-        steps = extended.get("steps", [])
+        # Get raw logs from enriched data (downloaded from GitHub)
+        raw_logs = enriched.get("raw_logs", "")
+        steps = enriched.get("steps", [])
+        
+        # Use enriched duration if available (more accurate)
+        if enriched.get("duration_seconds"):
+            duration = float(enriched.get("duration_seconds"))
         
         return self._extract_common(
             build_id=str(workflow.get("id", meta.get("request_id", "unknown"))),
-            repo_name=repo.get("full_name", ""),
-            branch=workflow.get("head_branch", ""),
-            commit_sha=workflow.get("head_sha", ""),
+            repo_name=repo.get("full_name", "") or enriched.get("repository", ""),
+            branch=workflow.get("head_branch", "") or enriched.get("branch", ""),
+            commit_sha=workflow.get("head_sha", "") or enriched.get("commit_sha", ""),
             duration=duration,
             raw_logs=raw_logs,
             steps=steps,
@@ -193,11 +198,12 @@ class FeatureExtractor:
         """Extract features from GitLab CI format."""
         attrs = payload.get("object_attributes", {})
         project = payload.get("project", {})
-        extended = payload.get("_safeops_extended", {})
+        # Check both _enriched (from GitLab integration) and _safeops_extended (legacy)
+        enriched = payload.get("_enriched", {}) or payload.get("_safeops_extended", {})
         
         duration = attrs.get("duration", 0)
-        raw_logs = extended.get("raw_logs", "")
-        steps = extended.get("steps", [])
+        raw_logs = enriched.get("raw_logs", "")
+        steps = enriched.get("steps", [])
         
         return self._extract_common(
             build_id=str(attrs.get("id", meta.get("request_id", "unknown"))),
@@ -216,7 +222,8 @@ class FeatureExtractor:
         meta: Dict[str, Any]
     ) -> BuildFeatures:
         """Extract features from generic/test format."""
-        extended = payload.get("_safeops_extended", {})
+        # Check both _enriched and _safeops_extended
+        enriched = payload.get("_enriched", {}) or payload.get("_safeops_extended", {})
         workflow = payload.get("workflow_run", {})
         
         # Try to get timestamps
@@ -224,14 +231,18 @@ class FeatureExtractor:
         finished_str = workflow.get("updated_at", "")
         duration = self._calculate_duration(started_str, finished_str)
         
-        raw_logs = extended.get("raw_logs", "")
-        steps = extended.get("steps", [])
+        # Use enriched duration if available
+        if enriched.get("duration_seconds"):
+            duration = float(enriched.get("duration_seconds"))
+        
+        raw_logs = enriched.get("raw_logs", "")
+        steps = enriched.get("steps", [])
         
         return self._extract_common(
             build_id=str(workflow.get("id", meta.get("request_id", "unknown"))),
-            repo_name=payload.get("repository", {}).get("full_name", ""),
-            branch=workflow.get("head_branch", ""),
-            commit_sha=workflow.get("head_sha", ""),
+            repo_name=payload.get("repository", {}).get("full_name", "") or enriched.get("repository", ""),
+            branch=workflow.get("head_branch", "") or enriched.get("branch", ""),
+            commit_sha=workflow.get("head_sha", "") or enriched.get("commit_sha", ""),
             duration=duration,
             raw_logs=raw_logs,
             steps=steps,

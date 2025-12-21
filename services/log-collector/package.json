@@ -11,6 +11,7 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+    "adm-zip": "^0.5.10",
     "amqplib": "^0.10.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

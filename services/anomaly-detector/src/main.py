@@ -8,6 +8,7 @@ Starts the anomaly detection service with both:
 
 import os
 import sys
+import time
 import signal
 import threading
 from pathlib import Path
@@ -54,19 +55,32 @@ def train_model_if_needed():
 
 
 def start_queue_consumer():
-    """Start the queue consumer in a background thread."""
+    """Start the queue consumer in a background thread with auto-reconnection."""
     handler = get_queue_handler()
     
     def consumer_thread():
-        try:
-            handler.connect()
-            handler.start_consuming()
-        except Exception as e:
-            logger.error(f"Queue consumer error: {e}")
+        reconnect_delay = 5  # seconds
+        max_delay = 60  # max backoff
+        
+        while True:
+            try:
+                logger.info("Queue consumer connecting...")
+                handler.connect()
+                logger.info("Queue consumer connected, starting to consume messages")
+                handler.start_consuming()
+            except Exception as e:
+                logger.error(f"Queue consumer error: {e}")
+                logger.info(f"Reconnecting in {reconnect_delay} seconds...")
+                time.sleep(reconnect_delay)
+                # Exponential backoff
+                reconnect_delay = min(reconnect_delay * 2, max_delay)
+            else:
+                # Reset delay on successful connection
+                reconnect_delay = 5
     
     thread = threading.Thread(target=consumer_thread, daemon=True)
     thread.start()
-    logger.info("Queue consumer started in background thread")
+    logger.info("Queue consumer started in background thread with auto-reconnection")
     return thread
 
 

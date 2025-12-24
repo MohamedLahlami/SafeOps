@@ -110,6 +110,9 @@ class RabbitMQHandler:
             except json.JSONDecodeError as e:
                 logger.error(f"Invalid JSON message: {e}")
                 ch.basic_ack(delivery_tag=method.delivery_tag)  # Don't requeue bad JSON
+            except (AttributeError, TypeError, KeyError) as e:
+                logger.error(f"Malformed message data, discarding: {e}")
+                ch.basic_ack(delivery_tag=method.delivery_tag)  # Don't requeue malformed data
             except Exception as e:
                 logger.error(f"Error processing message: {e}")
                 ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)

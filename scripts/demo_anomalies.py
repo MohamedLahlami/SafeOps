@@ -53,21 +53,10 @@ def create_base_payload(run_id: int, duration_seconds: int, conclusion: str = "s
 
 
 def create_cryptomining_payload():
-    """
-    Simulate a CRYPTOMINING attack.
-    
-    Characteristics:
-    - Very long duration (~600+ seconds vs normal ~120s)
-    - Mining software patterns (xmrig, cryptonight, stratum)
-    - High CPU usage indicators
-    - Connection to mining pools
-    """
     run_id = generate_run_id()
-    duration = random.randint(580, 720)  # 10-12 minutes (abnormally long)
-    
+    duration = random.randint(580, 720)  # 10-12 minutes
     payload = create_base_payload(run_id, duration, "success")
-    
-    # Inject malicious logs that will be parsed
+
     malicious_logs = f"""
 2025-12-24T10:00:00Z ##[group]Run npm install
 2025-12-24T10:00:05Z npm WARN deprecated package@1.0.0
@@ -101,7 +90,6 @@ def create_cryptomining_payload():
 2025-12-24T10:10:20Z ##[endgroup]
 """
     
-    # Add enriched data with the malicious logs
     payload["_enriched"] = {
         "raw_logs": malicious_logs,
         "duration_seconds": duration,

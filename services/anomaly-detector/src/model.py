@@ -288,8 +288,19 @@ class IsolationForestModel:
         prediction_int = int(prediction)
         score_float = float(raw_score)
         
+        # HYBRID APPROACH: Apply explicit security rules for critical indicators
+        # These override ML predictions when critical security features are present
+        security_override, override_reasons = self._check_security_rules(features)
+        if security_override:
+            is_anomaly = True
+            # Adjust score to reflect the override
+            if score_float > 0:
+                score_float = -0.05  # Make it slightly anomalous
+        
         # Generate explanations
         reasons = self._generate_reasons(features, is_anomaly)
+        if security_override:
+            reasons = override_reasons + reasons
         top_features = self._get_top_contributing_features(features, feature_vector)
         
         return AnomalyResult(
@@ -303,6 +314,50 @@ class IsolationForestModel:
             model_version=self.model_version,
             processed_at=datetime.utcnow().isoformat() + "Z"
         )
+    
+    def _check_security_rules(self, features: Dict[str, Any]) -> Tuple[bool, List[Dict[str, Any]]]:
+        """
+        Apply explicit security rules for critical indicators.
+        
+        These rules catch obvious attack patterns that might be missed by
+        the ML model due to feature interactions.
+        
+        Returns:
+            (should_flag, list of reasons)
+        """
+        reasons = []
+        
+        # Rule 1: Any suspicious command patterns is a red flag
+        suspicious_count = features.get('suspicious_pattern_count', 0) or 0
+        if suspicious_count >= 1:
+            reasons.append({
+                "feature": "suspicious_pattern_count",
+                "value": suspicious_count,
+                "reason": f"Detected {suspicious_count} suspicious command pattern(s) (e.g., xmrig, nc -e, curl|bash)",
+                "severity": "critical"
+            })
+        
+        # Rule 2: External IPs combined with suspicious patterns
+        external_ip_count = features.get('external_ip_count', 0) or 0
+        if external_ip_count >= 2 and suspicious_count >= 1:
+            reasons.append({
+                "feature": "external_ip_count", 
+                "value": external_ip_count,
+                "reason": f"Multiple external IP connections ({external_ip_count}) with suspicious patterns",
+                "severity": "critical"
+            })
+        
+        # Rule 3: Very long duration with suspicious patterns (cryptomining indicator)
+        duration = features.get('duration_seconds', 0) or 0
+        if duration > 1200 and suspicious_count >= 1:  # 20+ minutes with suspicious patterns
+            reasons.append({
+                "feature": "duration_seconds",
+                "value": duration,
+                "reason": f"Extended build duration ({duration}s) with suspicious patterns - possible cryptomining",
+                "severity": "critical"
+            })
+        
+        return len(reasons) > 0, reasons
     
     def predict_batch(self, feature_list: List[Dict[str, Any]]) -> List[AnomalyResult]:
         """Predict anomalies for multiple builds."""

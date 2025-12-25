@@ -19,10 +19,7 @@ A microservices-based DevSecOps platform for detecting security anomalies in CI/
 
 # Demo
 
-<video controls width="900">
-
-  <source src="SafeOps_Demo.mp4" type="video/mp4">
-</video>
+![Demo](SafeOps_Demo.gif)
 
 ## Quick Start
 

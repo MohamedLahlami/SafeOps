@@ -270,7 +270,7 @@ def send_payload(payload: dict, attack_type: str, run_id: int):
         return False
 
 
-def wait_for_analysis(run_id: int, timeout: int = 15):
+def wait_for_analysis(run_id: int, timeout: int = 30):
     """Wait for the anomaly detector to process the build."""
     print(f"\n Waiting for analysis (up to {timeout}s)...")
     
